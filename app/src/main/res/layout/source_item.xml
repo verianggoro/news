@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingVertical="16dp">
+        <TextView
+            android:id="@+id/title_source_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="INI SOURCE"/>
+    </LinearLayout>
+</layout>
