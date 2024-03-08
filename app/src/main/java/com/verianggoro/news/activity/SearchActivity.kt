@@ -2,6 +2,7 @@ package com.verianggoro.news.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -37,8 +38,10 @@ class SearchActivity : AppCompatActivity() {
 
     private fun search(){
         if (!binding.searchQuery.text.isNullOrEmpty() ){
+            binding.loadingBar.visibility = View.VISIBLE
             viewModelSearch.sendingRequest(this, binding.searchQuery.text.toString())
             viewModelSearch.getListNews().observe(this){
+                binding.loadingBar.visibility = View.GONE
                 if (!it.results.isNullOrEmpty()){
                     newsAdapter = NewsAdapter(it.results!!)
                     binding.rvResultSearch.adapter = newsAdapter

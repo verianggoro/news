@@ -12,7 +12,7 @@ import java.util.Date
 import java.util.Locale
 
 class NewsAdapter(
-    private val listEvent: List<Articles>
+    private val listEvent: ArrayList<Articles>
 ): RecyclerView.Adapter<NewsAdapter.EventViewHolder>() {
     override fun onCreateViewHolder(
         parent: ViewGroup,

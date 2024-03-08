@@ -21,5 +21,11 @@
             android:id="@+id/rv_result_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
+        <ProgressBar
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/loading_bar"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"/>
     </LinearLayout>
 </layout>

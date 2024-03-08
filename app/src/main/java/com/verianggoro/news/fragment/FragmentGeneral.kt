@@ -2,12 +2,11 @@ package com.verianggoro.news.fragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,6 +14,7 @@ import com.tiketapasaja.taaccess.adapter.NewsAdapter
 import com.tiketapasaja.taaccess.adapter.SourceAdapter
 import com.verianggoro.news.activity.NewsSourceActivity
 import com.verianggoro.news.activity.WebViewClientActivity
+import com.verianggoro.news.common.Config
 import com.verianggoro.news.databinding.FragmentGeneralBinding
 import com.verianggoro.news.model.Articles
 import com.verianggoro.news.model.Resource
@@ -39,6 +39,9 @@ class FragmentGeneral : Fragment() {
         false
     )
 
+    private lateinit var lisNewsArticles: ArrayList<Articles>
+    private var initialPage = 1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -60,8 +63,8 @@ class FragmentGeneral : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModelNews = ViewModelProvider(this)[HomeListViewModel::class.java]
         viewModelSource = ViewModelProvider(this)[SourcesViewModel::class.java]
+        binding.loadingBar.visibility = View.VISIBLE
         initialData(view, param2!!, param1!!)
-        loadMoreNews(param2!!, param1!!)
     }
 
     companion object {
@@ -76,84 +79,169 @@ class FragmentGeneral : Fragment() {
 
     private fun initialData(view: View, paramsCategory: String, indicateScreen: String){
         if (indicateScreen.equals("Home")){
-            val getToken = "87321fcf8a8d43a0af6725546c48b5cd"
-            val country = "id"
-
-            val PAGE_INITIAL = 1
+            lisNewsArticles = ArrayList()
             when (paramsCategory){
                 "Business" -> {
                     val params: HashMap<String, *> = hashMapOf(
-                        "apiKey" to getToken,
-                        "country" to country,
+                        "apiKey" to Config.TOKEN,
+                        "country" to Config.COUNTRY,
                         "category" to "business",
-                        "page" to PAGE_INITIAL
+                        "page" to initialPage
                     )
                     viewModelNews.sendingRequest(view.context, params)
                 }
                 "Entertainment" -> {
                     val params: HashMap<String, *> = hashMapOf(
-                        "apiKey" to getToken,
-                        "country" to country,
+                        "apiKey" to Config.TOKEN,
+                        "country" to Config.COUNTRY,
                         "category" to "entertainment",
-                        "page" to PAGE_INITIAL
+                        "page" to initialPage
                     )
                     viewModelNews.sendingRequest(view.context, params)
                 }
                 "General" -> {
                     val params: HashMap<String, *> = hashMapOf(
-                        "apiKey" to getToken,
-                        "country" to country,
+                        "apiKey" to Config.TOKEN,
+                        "country" to Config.COUNTRY,
                         "category" to "general",
-                        "page" to PAGE_INITIAL
+                        "page" to initialPage
                     )
                     viewModelNews.sendingRequest(view.context, params)
                 }
                 "Health" -> {
                     val params: HashMap<String, *> = hashMapOf(
-                        "apiKey" to getToken,
-                        "country" to country,
+                        "apiKey" to Config.TOKEN,
+                        "country" to Config.COUNTRY,
                         "category" to "health",
-                        "page" to PAGE_INITIAL
+                        "page" to initialPage
                     )
                     viewModelNews.sendingRequest(view.context, params)
                 }
                 "Science" -> {
                     val params: HashMap<String, *> = hashMapOf(
-                        "apiKey" to getToken,
-                        "country" to country,
+                        "apiKey" to Config.TOKEN,
+                        "country" to Config.COUNTRY,
                         "category" to "science",
-                        "page" to PAGE_INITIAL
+                        "page" to initialPage
                     )
                     viewModelNews.sendingRequest(view.context, params)
                 }
                 "Sport" -> {
                     val params: HashMap<String, *> = hashMapOf(
-                        "apiKey" to getToken,
-                        "country" to country,
+                        "apiKey" to Config.TOKEN,
+                        "country" to Config.COUNTRY,
                         "category" to "sport",
-                        "page" to PAGE_INITIAL
+                        "page" to initialPage
                     )
                     viewModelNews.sendingRequest(view.context, params)
                 }
                 "Technology" -> {
                     val params: HashMap<String, *> = hashMapOf(
-                        "apiKey" to getToken,
-                        "country" to country,
+                        "apiKey" to Config.TOKEN,
+                        "country" to Config.COUNTRY,
                         "category" to "technology",
-                        "page" to PAGE_INITIAL
+                        "page" to initialPage
                     )
                     viewModelNews.sendingRequest(view.context, params)
                 }
             }
 
             viewModelNews.getListNews().observe(requireActivity()){
+                binding.loadingBar.visibility = View.GONE
                 if (!it.results!!.isNullOrEmpty()) {
-                    newsAdapter = NewsAdapter(it.results!!)
-                    binding.rvNewsList.adapter = newsAdapter
+                    if (lisNewsArticles.isNullOrEmpty()){
+                        lisNewsArticles = it.results!!
+                        newsAdapter = NewsAdapter(lisNewsArticles)
+                        binding.rvNewsList.adapter = newsAdapter
+                    }else{
+                        lisNewsArticles.addAll(it.results!!)
+                        newsAdapter.notifyDataSetChanged()
+                    }
                     binding.rvNewsList.layoutManager = layoutManager
                     newsAdapter.setOnClicked(object : NewsAdapter.onItemCallback{
                         override fun itemEventClick(dataEvent: Articles) {
                             toWebView(dataEvent.url!!)
+                        }
+                    })
+                    binding.rvNewsList.addOnScrollListener(object : RecyclerView.OnScrollListener(){
+                        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                            super.onScrolled(recyclerView, dx, dy)
+                            val lastVisibleItemPosition = layoutManager.findLastCompletelyVisibleItemPosition()
+                            val sizer = lisNewsArticles.size
+                            if (lastVisibleItemPosition == (sizer - 1)){
+                                when (paramsCategory){
+                                    "Business" -> {
+                                        initialPage++
+                                        val params: HashMap<String, *> = hashMapOf(
+                                            "apiKey" to Config.TOKEN,
+                                            "country" to Config.COUNTRY,
+                                            "category" to "business",
+                                            "page" to initialPage
+                                        )
+                                        viewModelNews.sendingRequest(requireContext(), params)
+                                    }
+                                    "Entertainment" -> {
+                                        initialPage++
+                                        val params: HashMap<String, *> = hashMapOf(
+                                            "apiKey" to Config.TOKEN,
+                                            "country" to Config.COUNTRY,
+                                            "category" to "entertainment",
+                                            "page" to initialPage
+                                        )
+                                        viewModelNews.sendingRequest(requireContext(), params)
+                                    }
+                                    "General" -> {
+                                        initialPage++
+                                        val params: HashMap<String, *> = hashMapOf(
+                                            "apiKey" to Config.TOKEN,
+                                            "country" to Config.COUNTRY,
+                                            "category" to "general",
+                                            "page" to initialPage
+                                        )
+                                        viewModelNews.sendingRequest(requireContext(), params)
+                                    }
+                                    "Health" -> {
+                                        initialPage++
+                                        val params: HashMap<String, *> = hashMapOf(
+                                            "apiKey" to Config.TOKEN,
+                                            "country" to Config.COUNTRY,
+                                            "category" to "health",
+                                            "page" to initialPage
+                                        )
+                                        viewModelNews.sendingRequest(requireContext(), params)
+                                    }
+                                    "Science" -> {
+                                        initialPage++
+                                        val params: HashMap<String, *> = hashMapOf(
+                                            "apiKey" to Config.TOKEN,
+                                            "country" to Config.COUNTRY,
+                                            "category" to "science",
+                                            "page" to initialPage
+                                        )
+                                        viewModelNews.sendingRequest(requireContext(), params)
+                                    }
+                                    "Sport" -> {
+                                        initialPage++
+                                        val params: HashMap<String, *> = hashMapOf(
+                                            "apiKey" to Config.TOKEN,
+                                            "country" to Config.COUNTRY,
+                                            "category" to "sport",
+                                            "page" to initialPage
+                                        )
+                                        viewModelNews.sendingRequest(requireContext(), params)
+                                    }
+                                    "Technology" -> {
+                                        initialPage++
+                                        val params: HashMap<String, *> = hashMapOf(
+                                            "apiKey" to Config.TOKEN,
+                                            "country" to Config.COUNTRY,
+                                            "category" to "technology",
+                                            "page" to initialPage
+                                        )
+                                        viewModelNews.sendingRequest(requireContext(), params)
+                                    }
+                                }
+                            }
                         }
                     })
                 }else{
@@ -214,108 +302,4 @@ class FragmentGeneral : Fragment() {
         startActivity(intent)
     }
 
-    private fun loadMoreNews(paramsCategory: String, indicateScreen: String ){
-        if (indicateScreen.equals("Home")) {
-            var initial = 1
-            binding.rvNewsList.addOnScrollListener(object : RecyclerView.OnScrollListener(){
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    viewModelNews.getListNews().observe(requireActivity()){
-                        var listNew: List<Articles> = it.results!!
-                        if (layoutManager.findLastCompletelyVisibleItemPosition() == it.results!!.size - 1){
-                            val getToken = "87321fcf8a8d43a0af6725546c48b5cd"
-                            val country = "id"
-                            when (paramsCategory){
-                                "Business" -> {
-                                    initial++
-                                    val params: HashMap<String, *> = hashMapOf(
-                                        "apiKey" to getToken,
-                                        "country" to country,
-                                        "category" to "business",
-                                        "page" to initial
-                                    )
-                                    viewModelNews.sendingRequest(requireContext(), params)
-                                }
-                                "Entertainment" -> {
-                                    initial++
-                                    val params: HashMap<String, *> = hashMapOf(
-                                        "apiKey" to getToken,
-                                        "country" to country,
-                                        "category" to "entertainment",
-                                        "page" to initial
-                                    )
-                                    viewModelNews.sendingRequest(requireContext(), params)
-                                }
-                                "General" -> {
-                                    initial++
-                                    val params: HashMap<String, *> = hashMapOf(
-                                        "apiKey" to getToken,
-                                        "country" to country,
-                                        "category" to "general",
-                                        "page" to initial
-                                    )
-                                    viewModelNews.sendingRequest(requireContext(), params)
-                                }
-                                "Health" -> {
-                                    initial++
-                                    val params: HashMap<String, *> = hashMapOf(
-                                        "apiKey" to getToken,
-                                        "country" to country,
-                                        "category" to "health",
-                                        "page" to initial
-                                    )
-                                    viewModelNews.sendingRequest(requireContext(), params)
-                                }
-                                "Science" -> {
-                                    initial++
-                                    val params: HashMap<String, *> = hashMapOf(
-                                        "apiKey" to getToken,
-                                        "country" to country,
-                                        "category" to "science",
-                                        "page" to initial
-                                    )
-                                    viewModelNews.sendingRequest(requireContext(), params)
-                                }
-                                "Sport" -> {
-                                    initial++
-                                    val params: HashMap<String, *> = hashMapOf(
-                                        "apiKey" to getToken,
-                                        "country" to country,
-                                        "category" to "sport",
-                                        "page" to initial
-                                    )
-                                    viewModelNews.sendingRequest(requireContext(), params)
-                                }
-                                "Technology" -> {
-                                    initial++
-                                    val params: HashMap<String, *> = hashMapOf(
-                                        "apiKey" to getToken,
-                                        "country" to country,
-                                        "category" to "technology",
-                                        "page" to initial
-                                    )
-                                    viewModelNews.sendingRequest(requireContext(), params)
-                                }
-                            }
-                            viewModelNews.getListNews().observe(requireActivity()){newNews ->
-                                if (!it.results!!.isNullOrEmpty()) {
-                                    newsAdapter = NewsAdapter(listNew.plus(newNews.results!!))
-                                    binding.rvNewsList.adapter = newsAdapter
-                                    binding.rvNewsList.layoutManager = layoutManager
-                                    newsAdapter.setOnClicked(object : NewsAdapter.onItemCallback{
-                                        override fun itemEventClick(dataEvent: Articles) {
-                                            toWebView(dataEvent.url!!)
-                                        }
-                                    })
-                                    newsAdapter.notifyDataSetChanged()
-                                }else{
-                                    Toast.makeText(requireContext(), "Terjadi Kesalahan", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
-                    }
-                }
-            })
-        }
-    }
 }

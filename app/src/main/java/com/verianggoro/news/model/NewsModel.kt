@@ -3,7 +3,7 @@ package com.verianggoro.news.model
 import com.google.gson.annotations.SerializedName
 
 data class NewsModel (
-    @SerializedName("articles") var results : List<Articles>? = null
+    @SerializedName("articles") var results : ArrayList<Articles>? = null
 )
 
 data class Articles (

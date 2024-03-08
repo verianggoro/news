@@ -2,6 +2,8 @@ package com.verianggoro.news.activity
 
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.get
 import androidx.databinding.DataBindingUtil
@@ -28,6 +30,11 @@ class HomeScreen : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_home_screen)
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finish()
+            }
+        })
         if (intent.extras != null) {
             eventHome = intent.getLongExtra(EVENT_ID, 0)
             defaultFragment()
@@ -35,6 +42,7 @@ class HomeScreen : AppCompatActivity() {
         }else{
             return
         }
+
 
     }
 

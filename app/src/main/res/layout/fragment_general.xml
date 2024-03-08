@@ -1,17 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.appcompat.widget.LinearLayoutCompat
+        xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".fragment.FragmentGeneral"
-        android:padding="10dp">
+        android:padding="10dp"
+        android:orientation="vertical">
+        <FrameLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <!-- TODO: Update blank fragment layout -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_news_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            <!-- TODO: Update blank fragment layout -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_news_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
-    </FrameLayout>
+        </FrameLayout>
+        <ProgressBar
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/loading_bar"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"/>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 </layout>
