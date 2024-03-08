@@ -2,5 +2,6 @@
 
 Assestment Bank Mandiri
 
-Aplikasi News Dengan NEWS API.
-Build Aplikasi berada di "app/build/outputs/apk/debug/"
+Aplikasi News Dengan NEWS API
+
+Build Aplikasi .apk berada di "app/build/outputs/apk/debug/"
